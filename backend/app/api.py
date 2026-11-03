@@ -83,6 +83,38 @@ def _faculty_for_user(db: Session, user: User) -> Faculty:
     return faculty
 
 
+def _ensure_faculty_class(db: Session, faculty: Faculty) -> ClassSection | None:
+    section = db.scalar(
+        select(ClassSection).where(ClassSection.faculty_id == faculty.id).order_by(ClassSection.id).limit(1)
+    )
+    if section is not None:
+        return section
+
+    department = db.scalar(select(Department).where(Department.name == "General"))
+    if department is None:
+        department = Department(name="General")
+        db.add(department)
+        db.flush()
+
+    subject_code = f"DEMO{faculty.user_id}"
+    subject = db.scalar(select(Subject).where(Subject.code == subject_code))
+    if subject is None:
+        subject = Subject(code=subject_code, name="Demo Class", department_id=department.id)
+        db.add(subject)
+        db.flush()
+
+    section = ClassSection(
+        subject_id=subject.id,
+        faculty_id=faculty.id,
+        section_code="A",
+        room="Default Classroom",
+    )
+    db.add(section)
+    db.commit()
+    db.refresh(section)
+    return section
+
+
 def _owned_session(db: Session, session_id: int, user: User) -> AttendanceSession:
     session = db.get(AttendanceSession, session_id)
     if session is None:
@@ -267,6 +299,7 @@ def list_classes(db: DbSession, _admin: User = Depends(require_role("admin"))) -
 @router.get("/faculty/classes")
 def faculty_classes(db: DbSession, user: User = Depends(require_role("faculty"))) -> list[dict[str, int | str]]:
     faculty = _faculty_for_user(db, user)
+    _ensure_faculty_class(db, faculty)
     rows = db.execute(
         select(ClassSection, Subject)
         .join(Subject, ClassSection.subject_id == Subject.id)
@@ -290,7 +323,10 @@ def faculty_classes(db: DbSession, user: User = Depends(require_role("faculty"))
 @router.post("/sessions", response_model=SessionSummary, status_code=201)
 def start_session(payload: SessionCreate, db: DbSession, user: User = Depends(require_role("faculty"))) -> SessionSummary:
     faculty = _faculty_for_user(db, user)
+    default_section = _ensure_faculty_class(db, faculty)
     section = db.get(ClassSection, payload.class_section_id)
+    if section is None and payload.class_section_id == 0:
+        section = default_section
     if section is None or section.faculty_id != faculty.id:
         raise HTTPException(status_code=404, detail="Assigned class section not found.")
     existing = db.scalar(select(AttendanceSession).where(
