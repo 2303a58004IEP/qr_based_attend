@@ -11,14 +11,14 @@ from fastapi.testclient import TestClient
 from app.db import Base, SessionLocal, engine
 from app.main import app
 from app.models import AttendanceRecord, ClassSection, Department, Enrollment, Faculty, Student, Subject, User
-from app.security import hash_password
+from app.security import DEFAULT_TEMPORARY_PASSWORD, hash_password
 
 
 def test_qr_checkin_requires_enrollment_and_prevents_duplicates() -> None:
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    password_hash = hash_password("local-test-password")
+    password_hash = hash_password(DEFAULT_TEMPORARY_PASSWORD)
     admin_user = User(email="admin@example.com", password_hash=password_hash, role="admin")
     faculty_user = User(email="faculty@example.com", password_hash=password_hash, role="faculty")
     student_user = User(email="student@example.com", password_hash=password_hash, role="student")
@@ -50,10 +50,10 @@ def test_qr_checkin_requires_enrollment_and_prevents_duplicates() -> None:
     db.close()
 
     with TestClient(app) as client:
-        admin_login = client.post("/auth/login", json={"email": "admin@example.com", "password": "local-test-password"})
-        faculty_login = client.post("/auth/login", json={"email": "faculty@example.com", "password": "local-test-password"})
-        student_login = client.post("/auth/login", json={"email": "student@example.com", "password": "local-test-password"})
-        outsider_login = client.post("/auth/login", json={"email": "outsider@example.com", "password": "local-test-password"})
+        admin_login = client.post("/auth/login", json={"email": "admin@example.com", "password": DEFAULT_TEMPORARY_PASSWORD})
+        faculty_login = client.post("/auth/login", json={"email": "faculty@example.com", "password": DEFAULT_TEMPORARY_PASSWORD})
+        student_login = client.post("/auth/login", json={"email": "student@example.com", "password": DEFAULT_TEMPORARY_PASSWORD})
+        outsider_login = client.post("/auth/login", json={"email": "outsider@example.com", "password": DEFAULT_TEMPORARY_PASSWORD})
         assert admin_login.status_code == faculty_login.status_code == student_login.status_code == outsider_login.status_code == 200
 
         admin_headers = {"Authorization": f"Bearer {admin_login.json()['access_token']}"}
@@ -142,3 +142,7 @@ def test_qr_checkin_requires_enrollment_and_prevents_duplicates() -> None:
         assert ended_session.status_code == 200
         after_end = client.post("/attendance/check-in", json={"qr_token": qr_token}, headers=student_headers)
         assert after_end.status_code == 409
+
+
+def test_demo_password_constant_is_shared() -> None:
+    assert DEFAULT_TEMPORARY_PASSWORD == "demo@123"

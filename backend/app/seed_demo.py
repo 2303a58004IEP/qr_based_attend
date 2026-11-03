@@ -1,5 +1,3 @@
-import secrets
-
 from sqlalchemy import select
 
 from .db import Base, SessionLocal, engine
@@ -14,7 +12,7 @@ def main() -> None:
         if db.scalar(select(User.id).limit(1)) is not None:
             raise SystemExit("Database already contains users; refusing to add demo accounts.")
 
-        demo_password = secrets.token_urlsafe(18)
+        demo_password = "demo@123"
         admin = User(email="admin@example.com", password_hash=hash_password(demo_password), role="admin")
         faculty_user = User(email="faculty@example.com", password_hash=hash_password(demo_password), role="faculty")
         student_one_user = User(email="student1@example.com", password_hash=hash_password(demo_password), role="student")
@@ -43,7 +41,7 @@ def main() -> None:
         print("Admin:   admin@example.com")
         print("Faculty: faculty@example.com")
         print("Student: student1@example.com or student2@example.com")
-        print(f"Password for all demo accounts: {demo_password}")
+        print("Password for all demo accounts: demo@123")
         print("Keep this local-only demo password private and do not reuse it.")
     finally:
         db.close()

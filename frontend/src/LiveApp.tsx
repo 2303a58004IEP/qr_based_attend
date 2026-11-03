@@ -52,7 +52,7 @@ function LoginScreen({ onSuccess }: { onSuccess: (token: string, user: AuthUser)
           {error && <div className="form-error" role="alert">{error}</div>}
           <button className="primary-button login-submit" disabled={busy} type="submit">{busy ? 'Signing in…' : 'Sign in'}</button>
         </form>
-        <div className="login-note">Local demo only. Create demo accounts with <code>py -m app.seed_demo</code> from the backend folder.</div>
+        <div className="login-note">Demo password for every account: <code>demo@123</code></div>
       </section>
       <aside className="login-aside"><span>01 / SESSION CHECK-IN</span><strong>Attendance,<br />without the guesswork.</strong><p>Verified student accounts. Short-lived class codes. A clear record for every session.</p></aside>
     </main>
