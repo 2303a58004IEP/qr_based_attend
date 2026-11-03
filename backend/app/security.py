@@ -11,8 +11,8 @@ import jwt
 SECRET_KEY = os.getenv("JWT_SECRET_KEY", "local-development-only-change-this-secret")
 TOKEN_ALGORITHM = "HS256"
 ACCESS_TOKEN_MINUTES = 60
-QR_TOKEN_SECONDS = 20
-QR_REFRESH_SECONDS = 15
+QR_TOKEN_SECONDS = 120
+QR_REFRESH_SECONDS = 120
 DEFAULT_TEMPORARY_PASSWORD = "demo@123"
 
 if os.getenv("APP_ENV", "development") == "production" and SECRET_KEY == "local-development-only-change-this-secret":

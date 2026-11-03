@@ -229,7 +229,7 @@ function FacultyWorkspace({ token, onLogout }: { token: string; onLogout: () => 
           </section>
           <section className="faculty-grid">
             <article className="panel qr-panel">
-              <div className="section-title"><h2>Student check-in</h2><p>Code rotates every 15 seconds</p></div>
+              <div className="section-title"><h2>Student check-in</h2><p>Code rotates every 2 minutes</p></div>
               <div className="qr-frame">{qr ? <QRCodeSVG value={qr.token} size={220} level="M" includeMargin /> : <div className="qr-loading">Preparing secure code…</div>}</div>
               <div className="qr-countdown">{qr ? `Refreshes in ${remaining}s` : 'Connecting to attendance API'}</div>
               <p className="qr-caption">Students must sign in on their own device before scanning.</p>

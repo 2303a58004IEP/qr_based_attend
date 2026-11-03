@@ -101,7 +101,7 @@ def test_qr_checkin_requires_enrollment_and_prevents_duplicates() -> None:
         session_id = session_response.json()["id"]
         qr_response = client.get(f"/sessions/{session_id}/qr", headers=faculty_headers)
         assert qr_response.status_code == 200
-        assert qr_response.json()["refresh_after_seconds"] == 15
+        assert qr_response.json()["refresh_after_seconds"] == 120
         qr_token = qr_response.json()["token"]
 
         first_check_in = client.post("/attendance/check-in", json={"qr_token": qr_token}, headers=student_headers)
