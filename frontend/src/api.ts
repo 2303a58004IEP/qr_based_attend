@@ -2,7 +2,7 @@ const configuredApiBase = import.meta.env.VITE_API_BASE_URL?.trim()
 const API_BASE = (
   configuredApiBase
     ? configuredApiBase.replace(/\/+$/, '')
-    : 'http://127.0.0.1:8000'
+    : import.meta.env.DEV ? 'http://127.0.0.1:8000' : ''
 )
 
 export type AuthUser = {
