@@ -42,7 +42,7 @@ from .schemas import (
     SubjectCreate,
     UserSummary,
 )
-from .security import QR_REFRESH_SECONDS, create_access_token, create_qr_token, decode_token, hash_password, verify_password
+from .security import DEFAULT_TEMPORARY_PASSWORD, QR_REFRESH_SECONDS, create_access_token, create_qr_token, decode_token, hash_password, verify_password
 
 router = APIRouter()
 
@@ -121,7 +121,7 @@ def current_profile(db: DbSession, user: User = Depends(require_user)) -> UserSu
 def create_student(payload: StudentCreate, db: DbSession, _admin: User = Depends(require_role("admin"))) -> dict[str, int | str]:
     if db.scalar(select(User).where(func.lower(User.email) == payload.email.lower())):
         raise HTTPException(status_code=409, detail="Email already exists.")
-    user = User(email=payload.email.lower(), password_hash=hash_password(payload.password), role="student")
+    user = User(email=payload.email.lower(), password_hash=hash_password(DEFAULT_TEMPORARY_PASSWORD), role="student")
     db.add(user)
     db.flush()
     student = Student(
@@ -145,7 +145,7 @@ def create_student(payload: StudentCreate, db: DbSession, _admin: User = Depends
 def create_faculty(payload: FacultyCreate, db: DbSession, _admin: User = Depends(require_role("admin"))) -> dict[str, int | str]:
     if db.scalar(select(User).where(func.lower(User.email) == payload.email.lower())):
         raise HTTPException(status_code=409, detail="Email already exists.")
-    user = User(email=payload.email.lower(), password_hash=hash_password(payload.password), role="faculty")
+    user = User(email=payload.email.lower(), password_hash=hash_password(DEFAULT_TEMPORARY_PASSWORD), role="faculty")
     db.add(user)
     db.flush()
     faculty = Faculty(user_id=user.id, staff_number=payload.staff_number.strip(), full_name=payload.full_name.strip())

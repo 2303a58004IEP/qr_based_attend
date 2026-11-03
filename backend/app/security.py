@@ -13,6 +13,7 @@ TOKEN_ALGORITHM = "HS256"
 ACCESS_TOKEN_MINUTES = 60
 QR_TOKEN_SECONDS = 20
 QR_REFRESH_SECONDS = 15
+DEFAULT_TEMPORARY_PASSWORD = "demo@123"
 
 if os.getenv("APP_ENV", "development") == "production" and SECRET_KEY == "local-development-only-change-this-secret":
     raise RuntimeError("Set JWT_SECRET_KEY before running in production.")

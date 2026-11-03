@@ -52,7 +52,6 @@ export default function AdminWorkspace({ token, onLogout }: { token: string; onL
   const addStudent = (values: FormData) => api.createStudent(token, {
     full_name: String(values.get('full_name')),
     email: String(values.get('email')),
-    password: String(values.get('password')),
     roll_number: String(values.get('roll_number')),
     department: String(values.get('department')),
     batch: String(values.get('batch')),
@@ -61,7 +60,6 @@ export default function AdminWorkspace({ token, onLogout }: { token: string; onL
   const addFaculty = (values: FormData) => api.createFaculty(token, {
     full_name: String(values.get('full_name')),
     email: String(values.get('email')),
-    password: String(values.get('password')),
     staff_number: String(values.get('staff_number')),
   })
   const addSubject = (values: FormData) => api.createSubject(token, {
@@ -94,17 +92,17 @@ export default function AdminWorkspace({ token, onLogout }: { token: string; onL
         {notice && <div className="admin-success" role="status">{notice}</div>}
         <nav className="admin-tabs" aria-label="Administration sections">{tabs.map((item) => <button className={tab === item ? 'active' : ''} key={item} onClick={() => setTab(item)} type="button">{item}{item === 'Students' ? <span>{students.length}</span> : item === 'Faculty' ? <span>{faculty.length}</span> : <span>{classes.length}</span>}</button>)}</nav>
         {tab === 'Students' && <section className="admin-layout">
-          <article className="panel admin-form-panel"><div className="section-title"><h2>Add student</h2><p>Account credentials are hashed by the API.</p></div>
+          <article className="panel admin-form-panel"><div className="section-title"><h2>Add student</h2><p>Temporary password: <code>demo@123</code></p></div>
             <form className="admin-form" onSubmit={(event) => void submit(event, addStudent, 'Student account created.')}>
-              <label>Full name<input name="full_name" required maxLength={160} /></label><label>HT number<input name="roll_number" required maxLength={64} /></label><label>Email<input name="email" type="email" required /></label><label>Temporary password<input name="password" type="password" minLength={8} required /></label><label>Branch<input name="department" required maxLength={120} /></label><label>Batch<input name="batch" required maxLength={64} placeholder="e.g. 2024–2028" /></label><label>Semester<input name="semester" type="number" min={1} max={20} defaultValue={1} required /></label><button className="primary-button" disabled={busy} type="submit">{busy ? 'Saving…' : 'Create student'}</button>
+              <label>Full name<input name="full_name" required maxLength={160} /></label><label>HT number<input name="roll_number" required maxLength={64} /></label><label>Email<input name="email" type="email" required /></label><label>Branch<input name="department" required maxLength={120} /></label><label>Batch<input name="batch" required maxLength={64} placeholder="e.g. 2024–2028" /></label><label>Semester<input name="semester" type="number" min={1} max={20} defaultValue={1} required /></label><button className="primary-button" disabled={busy} type="submit">{busy ? 'Saving…' : 'Create student'}</button>
             </form>
           </article>
           <article className="panel admin-list-panel"><div className="section-title"><h2>Student records</h2><p>{students.length} registered accounts</p></div><div className="table-wrap"><table><thead><tr><th>STUDENT</th><th>HT NUMBER</th><th>BRANCH</th><th>BATCH</th><th>SEMESTER</th></tr></thead><tbody>{students.map((student) => <tr key={student.id}><td><strong>{student.full_name}</strong><div className="subject-code">{student.email}</div></td><td>{student.roll_number}</td><td>{student.department}</td><td>{student.batch}</td><td>{student.semester}</td></tr>)}{!students.length && <tr><td className="empty-table" colSpan={5}>No student records yet.</td></tr>}</tbody></table></div></article>
         </section>}
         {tab === 'Faculty' && <section className="admin-layout">
           <div className="admin-form-stack">
-            <article className="panel admin-form-panel"><div className="section-title"><h2>Add faculty member</h2><p>Create a local faculty sign-in.</p></div>
-              <form className="admin-form" onSubmit={(event) => void submit(event, addFaculty, 'Faculty account created.')}><label>Full name<input name="full_name" required maxLength={160} /></label><label>Staff number<input name="staff_number" required maxLength={64} /></label><label>Email<input name="email" type="email" required /></label><label>Temporary password<input name="password" type="password" minLength={8} required /></label><button className="primary-button" disabled={busy} type="submit">{busy ? 'Saving…' : 'Create faculty'}</button></form>
+            <article className="panel admin-form-panel"><div className="section-title"><h2>Add faculty member</h2><p>Temporary password: <code>demo@123</code></p></div>
+              <form className="admin-form" onSubmit={(event) => void submit(event, addFaculty, 'Faculty account created.')}><label>Full name<input name="full_name" required maxLength={160} /></label><label>Staff number<input name="staff_number" required maxLength={64} /></label><label>Email<input name="email" type="email" required /></label><button className="primary-button" disabled={busy} type="submit">{busy ? 'Saving…' : 'Create faculty'}</button></form>
             </article>
             <article className="panel admin-form-panel"><div className="section-title"><h2>Add subject</h2><p>Subjects can be assigned to class sections.</p></div>
               <form className="admin-form" onSubmit={(event) => void submit(event, addSubject, 'Subject created.')}><label>Subject code<input name="code" required maxLength={32} /></label><label>Subject name<input name="name" required maxLength={160} /></label><label>Department<input name="department" required maxLength={120} /></label><button className="primary-button" disabled={busy} type="submit">Create subject</button></form>

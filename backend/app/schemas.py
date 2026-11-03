@@ -11,7 +11,6 @@ class LoginRequest(BaseModel):
 
 class StudentCreate(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
     full_name: str = Field(min_length=1, max_length=160)
     roll_number: str = Field(min_length=1, max_length=64)
     department: str = Field(min_length=1, max_length=120)
@@ -21,7 +20,6 @@ class StudentCreate(BaseModel):
 
 class FacultyCreate(BaseModel):
     email: EmailStr
-    password: str = Field(min_length=8, max_length=128)
     full_name: str = Field(min_length=1, max_length=160)
     staff_number: str = Field(min_length=1, max_length=64)
 

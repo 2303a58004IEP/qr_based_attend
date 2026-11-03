@@ -111,7 +111,16 @@ async function request<T>(path: string, token?: string, init: RequestInit = {}):
   const response = await fetch(`${API_BASE}${path}`, { ...init, headers })
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
-    throw new Error(typeof data.detail === 'string' ? data.detail : `Request failed (${response.status}).`)
+    if (typeof data.detail === 'string') throw new Error(data.detail)
+    if (Array.isArray(data.detail)) {
+      const messages = data.detail.map((issue: { loc?: unknown; msg?: unknown }) => {
+        const location = Array.isArray(issue.loc) ? issue.loc.slice(1).map(String).join('.') : ''
+        const message = typeof issue.msg === 'string' ? issue.msg : 'Invalid value'
+        return location ? `${location}: ${message}` : message
+      })
+      if (messages.length) throw new Error(messages.join('; '))
+    }
+    throw new Error(`Request failed (${response.status}).`)
   }
   return data as T
 }
@@ -142,8 +151,8 @@ export const api = {
   adminFaculty: (token: string) => request<FacultyRecord[]>('/admin/faculty', token),
   adminSubjects: (token: string) => request<SubjectRecord[]>('/admin/subjects', token),
   adminClasses: (token: string) => request<AdminClassRecord[]>('/admin/classes', token),
-  createStudent: (token: string, value: { email: string; password: string; full_name: string; roll_number: string; department: string; batch: string; semester: number }) => request('/admin/students', token, { method: 'POST', body: JSON.stringify(value) }),
-  createFaculty: (token: string, value: { email: string; password: string; full_name: string; staff_number: string }) => request('/admin/faculty', token, { method: 'POST', body: JSON.stringify(value) }),
+  createStudent: (token: string, value: { email: string; full_name: string; roll_number: string; department: string; batch: string; semester: number }) => request('/admin/students', token, { method: 'POST', body: JSON.stringify(value) }),
+  createFaculty: (token: string, value: { email: string; full_name: string; staff_number: string }) => request('/admin/faculty', token, { method: 'POST', body: JSON.stringify(value) }),
   createSubject: (token: string, value: { code: string; name: string; department: string }) => request('/admin/subjects', token, { method: 'POST', body: JSON.stringify(value) }),
   createClass: (token: string, value: { subject_id: number; faculty_id: number; section_code: string; room: string }) => request('/admin/classes', token, { method: 'POST', body: JSON.stringify(value) }),
   enrollStudent: (token: string, value: { student_id: number; class_section_id: number }) => request('/admin/enrollments', token, { method: 'POST', body: JSON.stringify(value) }),

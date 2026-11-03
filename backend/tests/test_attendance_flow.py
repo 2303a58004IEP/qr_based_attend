@@ -69,7 +69,6 @@ def test_qr_checkin_requires_enrollment_and_prevents_duplicates() -> None:
         student_created = client.post("/admin/students", json={
             "full_name": "New Student",
             "email": "new.student@example.com",
-            "password": "temporary-password",
             "roll_number": "CS-004",
             "department": "Computer Science",
             "batch": "2024-2028",
@@ -81,6 +80,17 @@ def test_qr_checkin_requires_enrollment_and_prevents_duplicates() -> None:
             if student["roll_number"] == "CS-004"
         )
         assert new_student["batch"] == "2024-2028"
+        new_student_login = client.post("/auth/login", json={"email": "new.student@example.com", "password": "demo@123"})
+        assert new_student_login.status_code == 200
+
+        faculty_created = client.post("/admin/faculty", json={
+            "email": "new.faculty@example.com",
+            "full_name": "New Faculty",
+            "staff_number": "F-002",
+        }, headers=admin_headers)
+        assert faculty_created.status_code == 201
+        new_faculty_login = client.post("/auth/login", json={"email": "new.faculty@example.com", "password": "demo@123"})
+        assert new_faculty_login.status_code == 200
 
         profile = client.get("/auth/me", headers=student_headers)
         assert profile.status_code == 200
